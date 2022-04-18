@@ -4,13 +4,13 @@ import "firebase/compat/firestore";
 import "firebase/compat/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCty1G6Gq0DtUagDeUybuqQol3zHVGXSdY",
-  authDomain: "nextfire-38f98.firebaseapp.com",
-  projectId: "nextfire-38f98",
-  storageBucket: "nextfire-38f98.appspot.com",
-  messagingSenderId: "885618567014",
-  appId: "1:885618567014:web:a0b026216c797542354aa7",
-  measurementId: "G-8YSTM4L5FY",
+  apiKey: "AIzaSyBtWbheYG0hDx8ubqmfzEgm5hqf88W9YWc",
+  authDomain: "nextfire-b793f.firebaseapp.com",
+  projectId: "nextfire-b793f",
+  storageBucket: "nextfire-b793f.appspot.com",
+  messagingSenderId: "19419594883",
+  appId: "1:19419594883:web:a8aacaf0b7768796ff5bb6",
+  measurementId: "G-M0XJ2M8R0V",
 };
 
 if (!firebase.apps.length) {
