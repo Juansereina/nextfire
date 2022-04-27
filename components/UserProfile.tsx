@@ -1,8 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 // UI component for user profile
 export default function UserProfile({ user }) {
-  console.log("user", user);
-
   return (
     <div className="box-center">
       <img

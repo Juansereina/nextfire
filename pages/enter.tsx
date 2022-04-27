@@ -91,10 +91,6 @@ function UsernameForm() {
 
   //
 
-  useEffect(() => {
-    checkUsername(formValue);
-  }, [formValue]);
-
   // Hit the database for username match after each debounced change
   // useCallback is required for debounce to work
   const checkUsername = useCallback(
@@ -107,8 +103,12 @@ function UsernameForm() {
         setLoading(false);
       }
     }, 500),
-    []
+    [username]
   );
+
+  useEffect(() => {
+    checkUsername(formValue);
+  }, [checkUsername, formValue]);
 
   return (
     !username && (

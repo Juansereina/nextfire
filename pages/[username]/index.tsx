@@ -21,16 +21,12 @@ export async function getServerSideProps({ query }) {
     posts = (await postsQuery.get()).docs.map(postToJSON);
   }
 
-  console.log("ssr", user);
-
   return {
     props: { user, posts }, // will be passed to the page component as props
   };
 }
 
 export default function UserProfilePage({ user, posts }) {
-  console.log("page", user);
-
   return (
     <main>
       <UserProfile user={user} />
