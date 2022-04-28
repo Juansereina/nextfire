@@ -1,101 +1,109 @@
 import styles from "../../styles/Admin.module.css";
 import AuthCheck from "../../components/AuthCheck";
-import PostFeed from "../../components/PostFeed";
-import { UserContext } from "../../lib/context";
 import { firestore, auth, serverTimestamp } from "../../lib/firebase";
 
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 
-import { useCollection } from "react-firebase-hooks/firestore";
-import kebabCase from "lodash.kebabcase";
+import { useDocumentData } from "react-firebase-hooks/firestore";
+import { useForm } from "react-hook-form";
+import ReactMarkdown from "react-markdown";
+import Link from "next/link";
 import toast from "react-hot-toast";
 
-export default function AdminPostsPage(props) {
+export default function AdminPostEdit(props) {
   return (
-    <main>
-      <AuthCheck>
-        <PostList />
-        <CreateNewPost />
-      </AuthCheck>
+    <AuthCheck>
+      <PostManager />
+    </AuthCheck>
+  );
+}
+
+function PostManager() {
+  const [preview, setPreview] = useState(false);
+
+  const router = useRouter();
+  const { slug } = router.query;
+
+  const postRef = firestore
+    .collection("users")
+    .doc(auth.currentUser.uid)
+    .collection("posts")
+    .doc(slug);
+  const [post] = useDocumentData(postRef);
+
+  return (
+    <main className={styles.container}>
+      {post && (
+        <>
+          <section>
+            <h1>{post.title}</h1>
+            <p>ID: {post.slug}</p>
+
+            <PostForm
+              postRef={postRef}
+              defaultValues={post}
+              preview={preview}
+            />
+          </section>
+
+          <aside>
+            <h3>Tools</h3>
+            <button onClick={() => setPreview(!preview)}>
+              {preview ? "Edit" : "Preview"}
+            </button>
+            <Link href={`/${post.username}/${post.slug}`} passHref>
+              <button className="btn-blue">Live view</button>
+            </Link>
+          </aside>
+        </>
+      )}
     </main>
   );
 }
 
-function PostList() {
-  const ref = firestore
-    .collection("users")
-    .doc(auth.currentUser.uid)
-    .collection("posts");
-  const query = ref.orderBy("createdAt");
-  const [querySnapshot] = useCollection(query);
+function PostForm({ defaultValues, postRef, preview }) {
+  const { register, handleSubmit, reset, watch } = useForm({
+    defaultValues,
+    mode: "onChange",
+  });
 
-  const posts = querySnapshot?.docs.map((doc) => doc.data());
-
-  return (
-    <>
-      <h1>Manage your Posts</h1>
-      <PostFeed posts={posts} admin />
-    </>
-  );
-}
-
-function CreateNewPost() {
-  const router = useRouter();
-  const { username } = useContext(UserContext);
-  const [title, setTitle] = useState("");
-
-  // Ensure slug is URL safe
-  const slug = encodeURI(kebabCase(title));
-
-  // Validate length
-  const isValid = title.length > 3 && title.length < 100;
-
-  // Create a new post in firestore
-  const createPost = async (e) => {
-    e.preventDefault();
-    const uid = auth.currentUser.uid;
-    const ref = firestore
-      .collection("users")
-      .doc(uid)
-      .collection("posts")
-      .doc(slug);
-
-    // Tip: give all fields a default value here
-    const data = {
-      title,
-      slug,
-      uid,
-      username,
-      published: false,
-      content: "# hello world!",
-      createdAt: serverTimestamp(),
+  const updatePost = async ({ content, published }) => {
+    await postRef.update({
+      content,
+      published,
       updatedAt: serverTimestamp(),
-      heartCount: 0,
-    };
+    });
 
-    await ref.set(data);
+    reset({ content, published });
 
-    toast.success("Post created!");
-
-    // Imperative navigation after doc is set
-    router.push(`/admin/${slug}`);
+    toast.success("Post updated successfully!");
   };
 
   return (
-    <form onSubmit={createPost}>
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="My Awesome Article!"
-        className={styles.input}
-      />
-      <p>
-        <strong>Slug:</strong> {slug}
-      </p>
-      <button type="submit" disabled={!isValid} className="btn-green">
-        Create New Post
-      </button>
+    <form onSubmit={handleSubmit(updatePost)}>
+      {preview && (
+        <div className="card">
+          <ReactMarkdown>{watch("content")}</ReactMarkdown>
+        </div>
+      )}
+
+      <div className={preview ? styles.hidden : styles.controls}>
+        <textarea name="content" ref={register}></textarea>
+        <fieldset>
+          <input
+            className={styles.checkbox}
+            name="published"
+            type="checkbox"
+            ref={register}
+          />
+          <label>Published</label>
+        </fieldset>
+
+        <button type="submit" className="btn-green">
+          Save Changes
+        </button>
+      </div>
     </form>
   );
 }

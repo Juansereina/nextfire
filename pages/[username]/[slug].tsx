@@ -10,7 +10,7 @@ export async function getStaticProps({ params }) {
   let post;
   let path;
 
-  if (userDoc) {
+  if (userDoc && slug) {
     const postRef = userDoc.ref.collection("posts").doc(slug);
     console.log("postRef", await postRef.get());
 
@@ -20,7 +20,7 @@ export async function getStaticProps({ params }) {
   }
 
   return {
-    props: { post, path },
+    props: { post: post || null, path: path || null },
     revalidate: 5000,
   };
 }
@@ -47,7 +47,7 @@ export async function getStaticPaths() {
 }
 
 export default function Post(props) {
-  const postRef = firestore.doc(props.path);
+  const postRef = props.path && firestore.doc(props.path);
   const [realtimePost] = useDocumentData(postRef as any);
 
   const post = realtimePost || props.post;
