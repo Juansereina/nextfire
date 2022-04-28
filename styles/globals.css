@@ -185,7 +185,7 @@ button.btn-logo {
   display: flex;
 }
 
-.card-img-center {
+.card-img-center span {
   width: 20%;
   display: block;
   margin: auto;

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { useContext } from "react";
 import { UserContext } from "../lib/context";
 
@@ -25,8 +26,13 @@ export default function Navbar() {
             <li>
               <Link href={`/${username}`} passHref>
                 {user?.photoURL ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={user.photoURL} alt="this is a big picture" />
+                  <Image
+                    alt="this is a big picture"
+                    src={user?.photoURL || "/hacker.png"}
+                    className="card-img-center"
+                    width={50}
+                    height={50}
+                  />
                 ) : (
                   <p>No image</p>
                 )}

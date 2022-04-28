@@ -1,13 +1,21 @@
-/* eslint-disable @next/next/no-img-element */
-// UI component for user profile
+import Image from "next/image";
 export default function UserProfile({ user }) {
+  console.log("user", user);
+
   return (
     <div className="box-center">
-      <img
-        src={user?.photoURL || "/hacker.png"}
-        className="card-img-center"
-        alt=""
-      />
+      {user?.photoURL && (
+        <div className="card-img-center">
+          <Image
+            src={user?.photoURL || "/hacker.png"}
+            className=""
+            alt=""
+            width={150}
+            height={150}
+            layout="fixed"
+          />
+        </div>
+      )}
       <p>
         <i>@{user?.username}</i>
       </p>
